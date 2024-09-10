@@ -25,7 +25,7 @@ public class TurnoController {
 
     @GetMapping("turnos")
     public List<TurnoModel> consultar() {
-        return turnoService.all();
+        return turnoService.todos();
     }
 
     @PutMapping("turno/{id}")

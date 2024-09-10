@@ -25,7 +25,7 @@ public class PacienteController {
 
     @GetMapping("pacientes")
     public List<PacienteModel> consultar() {
-        return pacienteService.all();
+        return pacienteService.todos();
     }
 
     @PutMapping("paciente/{id}")

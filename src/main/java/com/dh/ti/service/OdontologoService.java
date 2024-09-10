@@ -40,7 +40,7 @@ public class OdontologoService {
 
     }
 
-    public List<OdontologoModel> all() {
+    public List<OdontologoModel> todos() {
         return iOdontologoRepository.findAll();
     }
 

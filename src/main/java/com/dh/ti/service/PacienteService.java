@@ -39,7 +39,7 @@ public class PacienteService {
 
     }
 
-    public List<PacienteModel> all() {
+    public List<PacienteModel> todos() {
         return iPacienteRepository.findAll();
     }
 

@@ -33,7 +33,7 @@ public class DomicilioService {
             return iDomicilioRepository.save(domicilioModel);
     }
 
-    public List<DomicilioModel> all() {
+    public List<DomicilioModel> todos() {
         return iDomicilioRepository.findAll();
     }
 

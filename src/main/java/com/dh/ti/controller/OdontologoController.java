@@ -23,7 +23,7 @@ public class OdontologoController {
 
     @GetMapping("odontologos")
     public List<OdontologoModel> consultar() {
-        return odontologoService.all();
+        return odontologoService.todos();
     }
 
     @PutMapping("odontologo/{id}")

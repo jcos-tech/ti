@@ -2,7 +2,6 @@ package com.dh.ti.service;
 
 import com.dh.ti.exception.ResourceCreatedException;
 import com.dh.ti.exception.ResourceNotFoundException;
-import com.dh.ti.model.DomicilioModel;
 import com.dh.ti.model.OdontologoModel;
 import com.dh.ti.model.PacienteModel;
 import com.dh.ti.model.TurnoModel;
@@ -48,7 +47,7 @@ public class TurnoService {
 
     }
 
-    public List<TurnoModel> all() {
+    public List<TurnoModel> todos() {
         return iTurnoRepository.findAll();
     }
 

@@ -26,7 +26,7 @@ public class DomicilioController {
 
     @GetMapping("domicilios")
     public List<DomicilioModel> consultar() {
-        return domicilioService.all();
+        return domicilioService.todos();
     }
 
     @PutMapping("domicilio/{id}")
