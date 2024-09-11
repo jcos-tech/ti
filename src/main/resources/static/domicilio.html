@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Domicilios</title>
+</head>
+<body>
+<header class="container my-4">
+    <h1 class="text-center">Administra direcciones</h1>
+</header>
+<main class="container">
+    <section>
+        <button id="crear" class="btn btn-primary mb-4">Nuevo</button>
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Calle</th>
+                <th>Numero</th>
+                <th>Localidad</th>
+                <th>Provincia</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td colspan="6" class="text-center">Cargando domicilios...</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/domicilio.js"></script>
+</body>
+</html>
