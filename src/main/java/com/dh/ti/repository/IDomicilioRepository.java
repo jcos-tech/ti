@@ -5,12 +5,12 @@ import org.springframework.stereotype.Repository;
 
 import com.dh.ti.model.DomicilioModel;
 
+import java.util.List;
+
 @Repository
 public interface IDomicilioRepository extends JpaRepository<DomicilioModel,Integer> {
 
-    DomicilioModel findByCalle(String calle);
-    DomicilioModel findByNumero(Integer numero);
-    DomicilioModel findByLocalidad(String localidad);
-    DomicilioModel findByProvincia(String provincia);
+    List<DomicilioModel> findByCalle(String calle);
+    List<DomicilioModel> findByNumero(Integer numero);
 
 }

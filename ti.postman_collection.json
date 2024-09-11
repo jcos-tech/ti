@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"calle\": \"calle 1\",\r\n    \"numero\": 1000,\r\n    \"localidad\": \"localidad 1\",\r\n    \"provincia\": \"privincia 2\"\r\n}",
+							"raw": "{\r\n    \"calle\": \"calle 3\",\r\n    \"numero\": 1001,\r\n    \"localidad\": \"localidad 1\",\r\n    \"provincia\": \"privincia 2\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -305,7 +305,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dni\": \"0001\",\r\n    \"nombre\": \"Cristian\",\r\n    \"apellido\": \"Olvera\",\r\n    \"alta\": \"2024-08-29\",\r\n    \"domicilio\": {\r\n        \"id\": 1\r\n    }\r\n}",
+							"raw": "{\r\n    \"dni\": \"00011\",\r\n    \"nombre\": \"Cristian\",\r\n    \"apellido\": \"Olvera\",\r\n    \"alta\": \"2024-08-29\",\r\n    \"domicilio\": {\r\n        \"id\": 1\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -395,7 +395,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"odontologo\": {\r\n        \"id\": 1\r\n    },\r\n    \"paciente\": {\r\n        \"id\": 1\r\n    },\r\n    \"fecha\": \"2024-08-20\"\r\n}",
+							"raw": "{\r\n    \"odontologo\": {\r\n        \"id\": 1\r\n    },\r\n    \"paciente\": {\r\n        \"id\": 1\r\n    },\r\n    \"fecha\": \"2024-08-13\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

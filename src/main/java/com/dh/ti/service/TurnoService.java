@@ -35,6 +35,14 @@ public class TurnoService {
             OdontologoModel odontologoModel = odontologoService.encontrarPorId(turnoModel.getOdontologo().getId());
             PacienteModel pacienteModel = pacienteService.encontrarPorId(turnoModel.getPaciente().getId());
 
+            if (!iTurnoRepository.findByFecha(turnoModel.getFecha()).isEmpty() && !iTurnoRepository.findByOdontologo(odontologoModel).isEmpty()){
+                throw new ResourceCreatedException("Odontologo con cita");
+            }
+
+            if (!iTurnoRepository.findByFecha(turnoModel.getFecha()).isEmpty() && !iTurnoRepository.findByPaciente(pacienteModel).isEmpty()){
+                throw new ResourceCreatedException("Paciente con cita");
+            }
+
             turnoModel.setOdontologo(odontologoModel);
             turnoModel.setPaciente(pacienteModel);
 

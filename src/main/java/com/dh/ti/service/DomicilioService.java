@@ -21,16 +21,11 @@ public class DomicilioService {
 
     public DomicilioModel create(DomicilioModel domicilioModel) {
 
-        if (
-                iDomicilioRepository.findByCalle(domicilioModel.getCalle()) != null
-                        && iDomicilioRepository.findByNumero(domicilioModel.getNumero()) != null
-                        && iDomicilioRepository.findByLocalidad(domicilioModel.getLocalidad()) != null
-                        && iDomicilioRepository.findByProvincia(domicilioModel.getProvincia()) != null
-        ){
+        if (!iDomicilioRepository.findByCalle(domicilioModel.getCalle()).isEmpty() && !iDomicilioRepository.findByNumero(domicilioModel.getNumero()).isEmpty()) {
             throw new ResourceCreatedException("No se puede crear la direccion");
         }
 
-            return iDomicilioRepository.save(domicilioModel);
+        return iDomicilioRepository.save(domicilioModel);
     }
 
     public List<DomicilioModel> todos() {

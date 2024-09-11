@@ -3,12 +3,7 @@ package com.dh.ti.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,9 +24,9 @@ public class TurnoModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @OneToOne
+    @ManyToOne
     private OdontologoModel odontologo;
-    @OneToOne
+    @ManyToOne
     private PacienteModel paciente;
     @NotNull(message = "Fecha no debe ser vacia")
     private LocalDate fecha;
