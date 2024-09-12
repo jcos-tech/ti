@@ -1,4 +1,4 @@
-window.addEventListener("load", (event) => {
+window.addEventListener("load", () => {
     const nuevo = document.querySelector("#crear");
     nuevo.addEventListener("click", () => {
         modalCrearNuevo();
@@ -17,17 +17,16 @@ function refreshOdontologos() {
             data.forEach(odontologo => {
                 const tr = document.createElement('tr');
 
-                tr.innerHTML = `<td>${odontologo.matricula}</td>
+                tr.innerHTML = `<td>${odontologo.id}</td>
+                                <td>${odontologo.matricula}</td>
                                 <td>${odontologo.nombre}</td>
                                 <td>${odontologo.apellido}</td>
-                                <td>${odontologo.domicilio ? odontologo.domicilio.calle : 'N/A'}</td>
-                                <td>${odontologo.domicilio ? odontologo.domicilio.numero : 'N/A'}</td>
-                                <td>${odontologo.domicilio ? odontologo.domicilio.localidad : 'N/A'}</td>
-                                <td>${odontologo.domicilio ? odontologo.domicilio.provincia : 'N/A'}</td>
+                                <td>${odontologo.domicilio ? `${odontologo.domicilio.calle} ${odontologo.domicilio.numero}, ${odontologo.domicilio.localidad}, ${odontologo.domicilio.provincia}` : 'Sin domicilio'}</td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm editar" data-id="${odontologo.matricula}">Editar</button>
-                                    <button class="btn btn-danger btn-sm eliminar" data-id="${odontologo.matricula}">Eliminar</button>
+                                    <button class="btn btn-warning btn-sm editar" data-id="${odontologo.id}">Editar</button>
+                                    <button class="btn btn-danger btn-sm eliminar" data-id="${odontologo.id}">Eliminar</button>
                                 </td>`;
+
 
                 tbody.appendChild(tr);
             });
@@ -47,29 +46,31 @@ function refreshOdontologos() {
 }
 
 function modalCrearNuevo() {
-    fetch("http://localhost:8080/domicilios")  // Suponiendo que esta es la URL para obtener las direcciones
+    fetch("http://localhost:8080/domicilios")
         .then(response => response.json())
         .then(domicilios => {
-            const dropdownOptions = domicilios.map(domicilio =>
-                `<option value="${domicilio.id}">${domicilio.calle}, ${domicilio.numero}, ${domicilio.localidad}, ${domicidio.provincia}</option>`
+            const domicilioOptions = domicilios.map(domicilio =>
+                `<option value="${domicilio.id}">
+                    ${domicilio.calle} ${domicilio.numero}, ${domicilio.localidad}, ${domicilio.provincia}
+                </option>`
             ).join("");
 
             const form = `<form id="crearForm">
                             <div class="mb-3">
                               <label for="matricula" class="form-label">Matrícula</label>
-                              <input type="text" class="form-control" id="matricula" required>
+                              <input type="text" class="form-control" id="matricula">
                             </div>
                             <div class="mb-3">
                               <label for="nombre" class="form-label">Nombre</label>
-                              <input type="text" class="form-control" id="nombre" required>
+                              <input type="text" class="form-control" id="nombre">
                             </div>
                             <div class="mb-3">
                               <label for="apellido" class="form-label">Apellido</label>
-                              <input type="text" class="form-control" id="apellido" required>
+                              <input type="text" class="form-control" id="apellido">
                             </div>
                             <div class="mb-3">
-                              <label for="domicilio" class="form-label">Dirección</label>
-                              <select class="form-control" id="domicilio" required>${dropdownOptions}</select>
+                              <label for="domicilio" class="form-label">Domicilio</label>
+                              <select class="form-control" id="domicilio">${domicilioOptions}</select>
                             </div>
                           </form>`;
 
@@ -83,7 +84,9 @@ function modalCrearNuevo() {
                         matricula: document.getElementById('matricula').value,
                         nombre: document.getElementById('nombre').value,
                         apellido: document.getElementById('apellido').value,
-                        domicilioId: document.getElementById('domicilio').value
+                        domicilio: {
+                            id: document.getElementById('domicilio').value
+                        }
                     };
 
                     return fetch("http://localhost:8080/odontologo", {
@@ -92,103 +95,113 @@ function modalCrearNuevo() {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(odontologo)
-                    }).then(response => response.json());
+                    }).then(response => response.json())
+                      .then(data => {
+                          if (data.errors) {
+                              Swal.showValidationMessage(
+                                  `Error: ${data.errors.join(", ")}`
+                              );
+                              throw new Error(data.errors.join(", "));
+                          }
+                          return data;
+                      });
                 }
             }).then(result => {
                 if (result.isConfirmed) {
                     Swal.fire('Creado!', 'El odontólogo ha sido creado.', 'success');
                     refreshOdontologos();
                 }
-            }).catch(error => {
-                console.error('Error al crear el odontólogo:', error);
-                Swal.fire('Error!', 'No se pudo crear el odontólogo.', 'error');
-            });
-        })
-        .catch(error => {
-            console.error('Error al cargar domicilios:', error);
-            Swal.fire('Error!', 'No se pudieron cargar los domicilios.', 'error');
+            }).catch(error => console.error('Error:', error));
         });
 }
 
-function modalEditarInformacion(matricula) {
-    fetch(`http://localhost:8080/odontologo/${matricula}`)
+function modalEditarInformacion(id) {
+    fetch(`http://localhost:8080/odontologo/${id}`)
         .then(response => response.json())
         .then(data => {
             fetch("http://localhost:8080/domicilios")
                 .then(response => response.json())
                 .then(domicilios => {
-                    const dropdownOptions = domicilios.map(domicilio =>
-                        `<option value="${domicilio.id}" ${domicilio.id === data.domicilio.id ? 'selected' : ''}>${domicilio.calle}, ${domicilio.numero}, ${domicidio.localidad}, ${domicidio.provincia}</option>`
+                    const domicilioOptions = domicilios.map(domicilio =>
+                        `<option value="${domicilio.id}" ${domicilio.id === data.domicilio.id ? 'selected' : ''}>
+                            ${domicilio.calle} ${domicilio.numero}, ${domicilio.localidad}, ${domicilio.provincia}
+                        </option>`
                     ).join("");
 
                     const form = `<form id="editarForm">
                                     <div class="mb-3">
                                       <label for="matricula" class="form-label">Matrícula</label>
-                                      <input type="text" class="form-control" id="matricula" value="${data.matricula}" disabled>
+                                      <input type="text" class="form-control" id="matricula" value="${data.matricula}">
                                     </div>
                                     <div class="mb-3">
                                       <label for="nombre" class="form-label">Nombre</label>
-                                      <input type="text" class="form-control" id="nombre" value="${data.nombre}" required>
+                                      <input type="text" class="form-control" id="nombre" value="${data.nombre}">
                                     </div>
                                     <div class="mb-3">
                                       <label for="apellido" class="form-label">Apellido</label>
-                                      <input type="text" class="form-control" id="apellido" value="${data.apellido}" required>
+                                      <input type="text" class="form-control" id="apellido" value="${data.apellido}">
                                     </div>
                                     <div class="mb-3">
-                                      <label for="domicilio" class="form-label">Dirección</label>
-                                      <select class="form-control" id="domicilio" required>${dropdownOptions}</select>
+                                      <label for="domicilio" class="form-label">Domicilio</label>
+                                      <select class="form-control" id="domicilio">${domicilioOptions}</select>
                                     </div>
                                   </form>`;
 
                     Swal.fire({
-                        title: `Editar Odontólogo #${matricula}`,
+                        title: "Editar Odontólogo",
                         html: form,
                         showCancelButton: true,
-                        confirmButtonText: 'Actualizar',
+                        confirmButtonText: 'Guardar',
                         preConfirm: () => {
                             const odontologo = {
+                                matricula: document.getElementById('matricula').value,
                                 nombre: document.getElementById('nombre').value,
                                 apellido: document.getElementById('apellido').value,
-                                domicilioId: document.getElementById('domicilio').value
+                                domicilio: {
+                                    id: document.getElementById('domicilio').value
+                                }
                             };
 
-                            return fetch(`http://localhost:8080/odontologo/${matricula}`, {
+                            return fetch(`http://localhost:8080/odontologo/${id}`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify(odontologo)
-                            }).then(response => response.json());
+                            }).then(response => response.json())
+                              .then(data => {
+                                  if (data.errors) {
+                                      Swal.showValidationMessage(
+                                          `Error: ${data.errors.join(", ")}`
+                                      );
+                                      throw new Error(data.errors.join(", "));
+                                  }
+                                  return data;
+                              });
                         }
                     }).then(result => {
                         if (result.isConfirmed) {
-                            Swal.fire('Modificado!', 'El odontólogo ha sido actualizado.', 'success');
+                            Swal.fire('Actualizado!', 'El odontólogo ha sido actualizado.', 'success');
                             refreshOdontologos();
                         }
-                    }).catch(error => {
-                        console.error('Error al actualizar el odontólogo:', error);
-                        Swal.fire('Error!', 'No se pudo actualizar el odontólogo.', 'error');
-                    });
-                })
-                .catch(error => {
-                    console.error('Error al cargar domicilios:', error);
-                    Swal.fire('Error!', 'No se pudieron cargar los domicilios.', 'error');
+                    }).catch(error => console.error('Error:', error));
                 });
-        })
-        .catch(error => {
-            console.error('Error al obtener el odontólogo:', error);
-            Swal.fire('Error!', 'No se pudo obtener la información del odontólogo.', 'error');
         });
 }
 
-function modalConfirmarEliminar(matricula) {
+
+
+function modalConfirmarEliminar(id) {
     Swal.fire({
-        title: `¿Seguro que deseas eliminar el odontólogo #${matricula}?`,
+        title: '¿Estás seguro?',
+        text: "¡No podrás recuperar este odontólogo!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Eliminar',
-        preConfirm: () => {
-            return fetch(`http://localhost:8080/odontologo/${matricula}`, {
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`http://localhost:8080/odontologo/${id}`, {
                 method: 'DELETE'
             }).then(response => {
                 if (response.ok) {
@@ -197,10 +210,8 @@ function modalConfirmarEliminar(matricula) {
                 } else {
                     Swal.fire('Error!', 'No se pudo eliminar el odontólogo.', 'error');
                 }
-            }).catch(error => {
-                console.error('Error al eliminar el odontólogo:', error);
-                Swal.fire('Error!', 'No se pudo eliminar el odontólogo.', 'error');
-            });
+            }).catch(error => console.error('Error:', error));
         }
     });
 }
+

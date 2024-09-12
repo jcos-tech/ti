@@ -84,15 +84,35 @@ function modalCrearNuevo() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(domicilio)
-            }).then(response => response.json());
+            }).then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        let errorMessage = "Error desconocido del servidor.";
+                        if (typeof err.errors === 'string') {
+                            errorMessage = err.errors;
+                        } else if (typeof err.errors === 'object') {
+                            errorMessage = Object.values(err.errors).join(", ");
+                        }
+                        throw new Error(errorMessage);
+                    });
+                }
+                return response.json();
+            }).catch(error => {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+                throw error;
+            });
         }
     }).then(result => {
         if (result.isConfirmed) {
             Swal.fire('Creado!', 'El domicilio ha sido creado.', 'success');
             refreshDomicilios(); // Refresca la lista después de crear
         }
+    }).catch(error => {
+        console.error('Error al crear el domicilio:', error);
+        Swal.fire('Error!', `No se pudo crear el domicilio: ${error.message}`, 'error');
     });
 }
+
 
 function modalEditarInformacion(id) {
     fetch(`http://localhost:8080/domicilio/${id}`)
@@ -136,16 +156,36 @@ function modalEditarInformacion(id) {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(domicilio)
-                    }).then(response => response.json());
+                    }).then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                let errorMessage = "Error desconocido del servidor.";
+                                if (typeof err.errors === 'string') {
+                                    errorMessage = err.errors;
+                                } else if (typeof err.errors === 'object') {
+                                    errorMessage = Object.values(err.errors).join(", ");
+                                }
+                                throw new Error(errorMessage);
+                            });
+                        }
+                        return response.json();
+                    }).catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message}`);
+                        throw error;
+                    });
                 }
             }).then(result => {
                 if (result.isConfirmed) {
                     Swal.fire('Modificado!', 'El domicilio ha sido actualizado.', 'success');
-                    refreshDomicilios(); // Refresca la lista después de editar
+                    refreshDomicilios();
                 }
+            }).catch(error => {
+                console.error('Error al editar el domicilio:', error);
+                Swal.fire('Error!', `No se pudo editar el domicilio: ${error.message}`, 'error');
             });
         });
 }
+
 
 function modalConfirmarEliminar(id) {
     Swal.fire({
@@ -157,12 +197,31 @@ function modalConfirmarEliminar(id) {
             return fetch(`http://localhost:8080/domicilio/${id}`, {
                 method: 'DELETE'
             }).then(response => {
-                if (response.ok) {
-                    Swal.fire('Eliminado!', 'El domicilio ha sido eliminado.', 'success');
-                    refreshDomicilios(); // Refresca la lista después de eliminar
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        let errorMessage = "Error desconocido del servidor.";
+                        if (typeof err.errors === 'string') {
+                            errorMessage = err.errors;
+                        } else if (typeof err.errors === 'object') {
+                            errorMessage = Object.values(err.errors).join(", ");
+                        }
+                        throw new Error(errorMessage);
+                    });
                 }
+                return response.json();
+            }).catch(error => {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+                throw error;
             });
         }
+    }).then(result => {
+        if (result.isConfirmed) {
+            Swal.fire('Eliminado!', 'El domicilio ha sido eliminado.', 'success');
+            refreshDomicilios();
+        }
+    }).catch(error => {
+        console.error('Error al eliminar el domicilio:', error);
+        Swal.fire('Error!', `No se pudo eliminar el domicilio: ${error.message}`, 'error');
     });
 }
 

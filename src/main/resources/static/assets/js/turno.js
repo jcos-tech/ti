@@ -12,7 +12,7 @@ function refreshTurnos() {
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector("tbody");
-            tbody.innerHTML = ''; // Limpiar el tbody antes de llenarlo
+            tbody.innerHTML = '';
 
             data.forEach(turno => {
                 const tr = document.createElement('tr');
@@ -40,6 +40,10 @@ function refreshTurnos() {
                     modalConfirmarEliminar(e.target.dataset.id);
                 });
             });
+        })
+        .catch(() => {
+            const tbody = document.querySelector("tbody");
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Error al cargar los turnos</td></tr>';
         });
 }
 
@@ -49,11 +53,11 @@ function modalCrearNuevo() {
         fetch("http://localhost:8080/pacientes").then(response => response.json())
     ]).then(([odontologos, pacientes]) => {
         const odontologoOptions = odontologos.map(odontologo =>
-            `<option value="${odontologo.dni}">${odontologo.nombre} ${odontologo.apellido}</option>`
+            `<option value="${odontologo.id}">${odontologo.nombre} ${odontologo.apellido}</option>`
         ).join("");
 
         const pacienteOptions = pacientes.map(paciente =>
-            `<option value="${paciente.dni}">${paciente.nombre} ${paciente.apellido}</option>`
+            `<option value="${paciente.id}">${paciente.nombre} ${paciente.apellido}</option>`
         ).join("");
 
         const form = `<form id="crearForm">
@@ -77,10 +81,18 @@ function modalCrearNuevo() {
             showCancelButton: true,
             confirmButtonText: 'Crear',
             preConfirm: () => {
+                const selectedOdontologoId = document.getElementById('odontologo').value;
+                const selectedPacienteId = document.getElementById('paciente').value;
+                const fecha = document.getElementById('fecha').value;
+
+                // Obtener los objetos completos de Odontologo y Paciente
+                const odontologo = odontologos.find(od => od.id == selectedOdontologoId);
+                const paciente = pacientes.find(pa => pa.id == selectedPacienteId);
+
                 const turno = {
-                    odontologoDni: document.getElementById('odontologo').value,
-                    pacienteDni: document.getElementById('paciente').value,
-                    fecha: document.getElementById('fecha').value
+                    odontologo: odontologo,  // Enviar el objeto completo
+                    paciente: paciente,      // Enviar el objeto completo
+                    fecha: fecha
                 };
 
                 return fetch("http://localhost:8080/turno", {
@@ -89,31 +101,41 @@ function modalCrearNuevo() {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(turno)
-                }).then(response => response.json());
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.errors) {
+                          Swal.showValidationMessage(
+                              `Error: ${data.errors.join(", ")}`
+                          );
+                          throw new Error(data.errors.join(", "));
+                      }
+                      return data;
+                  });
             }
         }).then(result => {
             if (result.isConfirmed) {
                 Swal.fire('Creado!', 'El turno ha sido creado.', 'success');
                 refreshTurnos();
             }
-        });
+        })
+        .catch(error => console.error('Error:', error));
     });
 }
 
 function modalEditarInformacion(id) {
     fetch(`http://localhost:8080/turno/${id}`)
         .then(response => response.json())
-        .then(data => {
+        .then(turno => {
             Promise.all([
                 fetch("http://localhost:8080/odontologos").then(response => response.json()),
                 fetch("http://localhost:8080/pacientes").then(response => response.json())
             ]).then(([odontologos, pacientes]) => {
                 const odontologoOptions = odontologos.map(odontologo =>
-                    `<option value="${odontologo.dni}" ${odontologo.dni === data.odontologo.dni ? 'selected' : ''}>${odontologo.nombre} ${odontologo.apellido}</option>`
+                    `<option value="${odontologo.id}" ${odontologo.id === turno.odontologo.id ? 'selected' : ''}>${odontologo.nombre} ${odontologo.apellido}</option>`
                 ).join("");
 
                 const pacienteOptions = pacientes.map(paciente =>
-                    `<option value="${paciente.dni}" ${paciente.dni === data.paciente.dni ? 'selected' : ''}>${paciente.nombre} ${paciente.apellido}</option>`
+                    `<option value="${paciente.id}" ${paciente.id === turno.paciente.id ? 'selected' : ''}>${paciente.nombre} ${paciente.apellido}</option>`
                 ).join("");
 
                 const form = `<form id="editarForm">
@@ -127,7 +149,7 @@ function modalEditarInformacion(id) {
                                 </div>
                                 <div class="mb-3">
                                   <label for="fecha" class="form-label">Fecha</label>
-                                  <input type="date" class="form-control" id="fecha" value="${data.fecha}">
+                                  <input type="date" class="form-control" id="fecha" value="${turno.fecha}">
                                 </div>
                               </form>`;
 
@@ -137,10 +159,19 @@ function modalEditarInformacion(id) {
                     showCancelButton: true,
                     confirmButtonText: 'Actualizar',
                     preConfirm: () => {
-                        const turno = {
-                            odontologoDni: document.getElementById('odontologo').value,
-                            pacienteDni: document.getElementById('paciente').value,
-                            fecha: document.getElementById('fecha').value
+                        const selectedOdontologoId = document.getElementById('odontologo').value;
+                        const selectedPacienteId = document.getElementById('paciente').value;
+                        const fecha = document.getElementById('fecha').value;
+
+                        // Obtener los objetos completos de Odontologo y Paciente
+                        const odontologo = odontologos.find(od => od.id == selectedOdontologoId);
+                        const paciente = pacientes.find(pa => pa.id == selectedPacienteId);
+
+                        const updatedTurno = {
+                            id: id,
+                            odontologo: odontologo,  // Enviar el objeto completo
+                            paciente: paciente,      // Enviar el objeto completo
+                            fecha: fecha
                         };
 
                         return fetch(`http://localhost:8080/turno/${id}`, {
@@ -148,15 +179,25 @@ function modalEditarInformacion(id) {
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify(turno)
-                        }).then(response => response.json());
+                            body: JSON.stringify(updatedTurno)
+                        }).then(response => response.json())
+                          .then(data => {
+                              if (data.errors) {
+                                  Swal.showValidationMessage(
+                                      `Error: ${data.errors.join(", ")}`
+                                  );
+                                  throw new Error(data.errors.join(", "));
+                              }
+                              return data;
+                          });
                     }
                 }).then(result => {
                     if (result.isConfirmed) {
                         Swal.fire('Modificado!', 'El turno ha sido actualizado.', 'success');
                         refreshTurnos();
                     }
-                });
+                })
+                .catch(error => console.error('Error:', error));
             });
         });
 }
@@ -174,8 +215,17 @@ function modalConfirmarEliminar(id) {
                 if (response.ok) {
                     Swal.fire('Eliminado!', 'El turno ha sido eliminado.', 'success');
                     refreshTurnos();
+                } else {
+                    return response.json().then(data => {
+                        Swal.showValidationMessage(
+                            `Error: ${data.errors ? data.errors.join(", ") : "No se pudo eliminar el turno"}`
+                        );
+                    });
                 }
-            });
+            })
+            .catch(error => console.error('Error:', error));
         }
     });
 }
+
+
